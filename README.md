@@ -1,4 +1,4 @@
-#文字动画效果
+# 文字动画效果
 
 [CodePen](https://codepen.io/sanchez3/full/MOJYXq/)
 
@@ -11,7 +11,7 @@
 
 
 
-###参考
+### 参考
 
 - GreenSock的 [SplitText: Multiple Split Types](https://greensock.com/splittext-example)
 - [HTML5像素文字爆炸重组动画特效DEMO演示](http://www.html5tricks.com/demo/html5-text-pixel/index.html)
