@@ -12,7 +12,7 @@ canvas {
 #container canvas{
     position: absolute;
     margin: auto;
-    
+    z-index: 1;
 }
 
 
@@ -38,6 +38,10 @@ body {
 
 
 nav {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
     width: 100%;
     height: auto;
     text-align: center;

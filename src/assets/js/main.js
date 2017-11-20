@@ -46,9 +46,20 @@ window.h5 = {
         }
 
         function addCanvas() {
+
+            var bg = document.createElement('div');
+            bg.style.position = 'absolute';
+            bg.style.top=0;
+            bg.style.left=0;
+            bg.style.width = '100%';
+            bg.style.height = '100%';
+            bg.style.backgroundColor = '#79a8ae';
+            bg.style.zIndex=1;
+            document.getElementById('container').appendChild(bg);
+
             var c1 = document.createElement('canvas');
             c1.id = 'text';
-            // c1.style.opacity = 0;
+            c1.style.opacity = 0.2;
             document.getElementById('container').appendChild(c1);
             offsetX = (window.innerWidth - 600) / 2;
             offsetY = (window.innerHeight - 300) / 2;
@@ -58,7 +69,7 @@ window.h5 = {
             c1.style.top = offsetY + 'px';
             c1.style.left = offsetX + 'px';
 
-            app = new PIXI.Application(window.innerWidth, window.innerHeight, { backgroundColor: 0x79a8ae });
+            app = new PIXI.Application(window.innerWidth, window.innerHeight, { transparent: true });
             document.getElementById('container').appendChild(app.view);
             document.getElementById('container').getElementsByTagName('canvas')[1].style.top = 0;
             document.getElementById('container').getElementsByTagName('canvas')[1].style.left = 0;
@@ -76,6 +87,7 @@ window.h5 = {
             a1.style.cursor = 'pointer';
             a1.style.margin = 'auto';
             a1.innerHTML = 'NEXT';
+             a1.style.zIndex=1;
             document.getElementById('container').appendChild(a1);
 
         }
@@ -236,7 +248,7 @@ window.h5 = {
                         alpha: 0.1,
                         // repeat:-1,yoyo:true
                         onComplete: function() {
-                            tweenCircle(c,'float');
+                            tweenCircle(c, 'float');
                         }
                     });
                 } else {
