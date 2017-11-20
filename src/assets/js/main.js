@@ -19,7 +19,6 @@ import css from '../css/css.css';
 
 // var Segment = require('segment');
 
-//CommonJS
 var textFormed;
 var textPixels;
 var circles;
@@ -29,6 +28,268 @@ var textStage;
 
 window.h5 = {
     first: -1,
+    initPixijs: function() {
+        var that = this;
+        var form, input;
+        var offsetX, offsetY;
+        var app;
+        var tctx;
+        var colors = ['0xFFFFFF', '0xFFFFFF', '0xFFFFFF', '0xFFFFFF', '0xFFFFFF'];
+
+        function init() {
+            addCanvas();
+            initEvent();
+            initText();
+            initCircles();
+            // animate();
+
+        }
+
+        function addCanvas() {
+            var c1 = document.createElement('canvas');
+            c1.id = 'text';
+            // c1.style.opacity = 0;
+            document.getElementById('container').appendChild(c1);
+            offsetX = (window.innerWidth - 600) / 2;
+            offsetY = (window.innerHeight - 300) / 2;
+            //.width 与.style.width效果不一样
+            c1.width = 600;
+            c1.height = 300;
+            c1.style.top = offsetY + 'px';
+            c1.style.left = offsetX + 'px';
+
+            app = new PIXI.Application(window.innerWidth, window.innerHeight, { backgroundColor: 0x79a8ae });
+            document.getElementById('container').appendChild(app.view);
+            document.getElementById('container').getElementsByTagName('canvas')[1].style.top = 0;
+            document.getElementById('container').getElementsByTagName('canvas')[1].style.left = 0;
+
+
+            var a1 = document.createElement('a');
+            a1.style.position = 'absolute';
+            a1.id = 'next-btn';
+            a1.style.width = '100px';
+            a1.style.height = '40px';
+            a1.style.backgroundColor = 'rgba(206,206,206,0.8)';
+            a1.style.bottom = '100px';
+            a1.style.left = 0;
+            a1.style.right = 0;
+            a1.style.cursor = 'pointer';
+            a1.style.margin = 'auto';
+            a1.innerHTML = 'NEXT';
+            document.getElementById('container').appendChild(a1);
+
+        }
+
+        // Init Canvas
+
+
+        function initEvent() {
+            document.getElementById('next-btn').addEventListener('click', function() {
+                var v = word.value[that.first % 11];
+                if (textFormed) {
+                    explode();
+                    if (v !== '') {
+                        createText(v); //v.toUpperCase()
+                    } else {
+                        textFormed = false;
+                    }
+                } else {
+                    createText(v);
+                }
+
+            });
+        }
+
+        function initText() {
+
+            tctx = document.getElementById('text').getContext('2d');
+            tctx.font = '80px "Source Sans Pro"';
+            tctx.fillStyle = '0xeee';
+            tctx.textAlign = "center";
+            tctx.fillText('', 0, 0);
+        }
+
+        function createText(t) {
+
+            tctx.clearRect(0, 0, 600, 300);
+            var fontSize = 860 / (t.length);
+            if (fontSize > 160)
+                fontSize = 160;
+            tctx.font = "" + fontSize + "px 'Source Sans Pro'";
+            // tctx.textAlign = 'center';
+            tctx.fillStyle = '#eee';
+            tctx.fillText(t, 300, (200 + fontSize) / 2);
+            that.first++;
+
+
+
+            var pix = tctx.getImageData(0, 0, 600, 300).data;
+            textPixels = [];
+            for (var i = pix.length; i >= 0; i -= 4) {
+                if (pix[i] !== 0) {
+                    var x = (i / 4) % 600;
+                    var y = Math.floor(Math.floor(i / 600) / 4);
+
+                    if ((x && x % 8 === 0) && (y && y % 8 === 0))
+                        textPixels.push({
+                            x: x,
+                            y: y
+                        });
+                }
+            }
+
+            formText();
+
+        }
+
+        function initCircles() {
+            circles = [];
+            for (var i = 0; i < 600; i++) {
+                var circle = new PIXI.Graphics();
+                var r = 7;
+                var x = window.innerWidth * Math.random();
+                var y = window.innerHeight * Math.random();
+                var color = colors[Math.floor(i % colors.length)];
+                var alpha = 0.2 + Math.random() * 0.5;
+                circle.alpha = alpha;
+                circle.radius = r;
+                circle.beginFill(color);
+                circle.drawCircle(0, 0, r);
+                circle.endFill();
+                circle.x = x;
+                circle.y = y;
+                circles.push(circle);
+                app.stage.addChild(circle);
+                circle.movement = 'float';
+                tweenCircle(circle);
+            }
+        }
+
+        // animating circles
+        function animate() {
+            requestAnimationFrame(animate);
+        }
+
+        function tweenCircle(c, dir) {
+            if (c.tween)
+                c.tween.kill();
+            if (dir == 'in') {
+                c.tween = TweenMax.to(c, 0.2, {
+                    ease: Quad.easeInOut,
+                    alpha: 0.2 + Math.random() * 0.5,
+                    onComplete: function() {
+                        TweenMax.to(c, 0.3, {
+                            x: c.originX,
+                            y: c.originY,
+                            ease: Quad.easeInOut,
+                            alpha: 1,
+                            onComplete: function() {
+                                c.movement = 'jiggle';
+                                tweenCircle(c);
+                            }
+                        });
+                    }
+                });
+                var sr = 0.5 * Math.random();
+                c.tweenscale = TweenMax.to(c.scale, 0.2, {
+                    x: 1.2 + sr,
+                    y: 1.2 + sr,
+                    ease: Quad.easeInOut,
+                    onComplete: function() {
+                        TweenMax.to(c.scale, 0.3, {
+                            x: 0.6,
+                            y: 0.6,
+                            ease: Quad.easeInOut
+                        });
+                    }
+                });
+            } else if (dir == 'out') {
+                c.tween = TweenMax.to(c, 0.8, {
+                    x: window.innerWidth * Math.random(),
+                    y: window.innerHeight * Math.random(),
+                    ease: Quad.easeInOut,
+                    alpha: 0.2 + Math.random() * 0.5,
+                    onComplete: function() {
+                        c.movement = 'float';
+                        tweenCircle(c);
+                    }
+                });
+                var sr = 1 * Math.random();
+                c.tweenscale = TweenMax.to(c.scale, 0.6, {
+                    x: 1.2 + sr,
+                    y: 1.2 + sr,
+                    ease: Quad.easeInOut,
+                    onComplete: function() {
+                        TweenMax.to(c.scale, 0.2, {
+                            x: 1,
+                            y: 1,
+                            ease: Quad.easeInOut
+                        });
+                    }
+                });
+            } else {
+                if (c.movement == 'float') {
+                    c.tween = TweenMax.to(c, 5 + Math.random() * 3.5, {
+                        x: c.x + -100 + Math.random() * 200,
+                        y: c.y + -100 + Math.random() * 200,
+                        ease: Quad.easeInOut,
+                        alpha: 0.1,
+                        // repeat:-1,yoyo:true
+                        onComplete: function() {
+                            tweenCircle(c,'float');
+                        }
+                    });
+                } else {
+                    c.tween = TweenMax.to(c, 0.05, {
+                        x: c.originX + Math.random() * 3,
+                        y: c.originY + Math.random() * 3,
+                        ease: Quad.easeInOut,
+                        onComplete: function() {
+                            tweenCircle(c);
+                        }
+                    });
+                }
+            }
+        }
+
+        function formText() {
+            for (var i = 0, l = textPixels.length; i < l; i++) {
+                circles[i].originX = offsetX + textPixels[i].x;
+                circles[i].originY = offsetY + textPixels[i].y;
+                tweenCircle(circles[i], 'in');
+            }
+            textFormed = true;
+            if (textPixels.length < circles.length) {
+                for (var j = textPixels.length; j < circles.length; j++) {
+                    circles[j].tween = TweenMax.to(circles[j], 0.4, {
+                        alpha: 0.1
+                    });
+                }
+            }
+        }
+
+        function explode() {
+            for (var i = 0, l = textPixels.length; i < l; i++) {
+                tweenCircle(circles[i], 'out');
+            }
+            if (textPixels.length < circles.length) {
+                for (var j = textPixels.length; j < circles.length; j++) {
+                    circles[j].tween = TweenMax.to(circles[j], 0.4, {
+                        alpha: 1
+                    });
+                }
+            }
+        }
+        var word = { value: ['即使', '你', '没', '去过', '南极', '你', '的', '生活', '仍然', '很', '精彩'] };
+
+        if (that.first === -1) {
+            document.getElementById('container').innerHTML = '';
+            document.getElementById('container').style.perspective = 'none';
+            that.first++;
+            init();
+
+        }
+    },
     initCreatejs: function() {
         var that = this;
         var stage, form, input;
@@ -143,27 +404,31 @@ window.h5 = {
             if (c.tween)
                 c.tween.kill();
             if (dir == 'in') {
-                c.tween = TweenLite.to(c, 0.4, {
+                c.tween = TweenMax.to(c, 0.4, {
                     x: c.originX,
                     y: c.originY,
                     ease: Quad.easeInOut,
                     alpha: 1,
                     radius: 5,
-                    scaleX: 0.4,
-                    scaleY: 0.4,
                     onComplete: function() {
                         c.movement = 'jiggle';
                         tweenCircle(c);
                     }
                 });
+                c.tweenscale = TweenMax.to(c.scale, 0.4, {
+                    x: 0.4,
+                    y: 0.4,
+                    ease: Quad.easeInOut
+                });
+
+
             } else if (dir == 'out') {
-                c.tween = TweenLite.to(c, 0.8, {
+                c.tween = TweenMax.to(c, 0.8, {
                     x: window.innerWidth * Math.random(),
                     y: window.innerHeight * Math.random(),
                     ease: Quad.easeInOut,
                     alpha: 0.2 + Math.random() * 0.5,
-                    scaleX: 1,
-                    scaleY: 1,
+                    scale: { x: 1, y: 1 },
                     onComplete: function() {
                         c.movement = 'float';
                         tweenCircle(c);
@@ -171,7 +436,7 @@ window.h5 = {
                 });
             } else {
                 if (c.movement == 'float') {
-                    c.tween = TweenLite.to(c, 5 + Math.random() * 3.5, {
+                    c.tween = TweenMax.to(c, 5 + Math.random() * 3.5, {
                         x: c.x + -100 + Math.random() * 200,
                         y: c.y + -100 + Math.random() * 200,
                         ease: Quad.easeInOut,
@@ -181,7 +446,7 @@ window.h5 = {
                         }
                     });
                 } else {
-                    c.tween = TweenLite.to(c, 0.05, {
+                    c.tween = TweenMax.to(c, 0.05, {
                         x: c.originX + Math.random() * 3,
                         y: c.originY + Math.random() * 3,
                         ease: Quad.easeInOut,
@@ -202,7 +467,7 @@ window.h5 = {
             textFormed = true;
             if (textPixels.length < circles.length) {
                 for (var j = textPixels.length; j < circles.length; j++) {
-                    circles[j].tween = TweenLite.to(circles[j], 0.4, {
+                    circles[j].tween = TweenMax.to(circles[j], 0.4, {
                         alpha: 0.1
                     });
                 }
@@ -215,7 +480,7 @@ window.h5 = {
             }
             if (textPixels.length < circles.length) {
                 for (var j = textPixels.length; j < circles.length; j++) {
-                    circles[j].tween = TweenLite.to(circles[j], 0.4, {
+                    circles[j].tween = TweenMax.to(circles[j], 0.4, {
                         alpha: 1
                     });
                 }
@@ -268,9 +533,6 @@ window.h5 = {
             init();
 
         }
-
-
-
     },
     addDivChars: function(t) {
         var fs = document.createElement('div');
@@ -647,7 +909,8 @@ window.h5 = {
         }, false);
         var c2d = document.getElementById('c2d');
         c2d.addEventListener('click', function() {
-            that.initCreatejs();
+            // that.initCreatejs();
+            that.initPixijs()
         });
 
 

@@ -9,6 +9,11 @@
 canvas {
     pointer-events: none;
 }
+#container canvas{
+    position: absolute;
+    margin: auto;
+    
+}
 
 
 
