@@ -49,12 +49,12 @@ window.h5 = {
 
             var bg = document.createElement('div');
             bg.style.position = 'absolute';
-            bg.style.top=0;
-            bg.style.left=0;
+            bg.style.top = 0;
+            bg.style.left = 0;
             bg.style.width = '100%';
             bg.style.height = '100%';
             bg.style.backgroundColor = '#79a8ae';
-            bg.style.zIndex=1;
+            bg.style.zIndex = 1;
             document.getElementById('container').appendChild(bg);
 
             var c1 = document.createElement('canvas');
@@ -87,7 +87,7 @@ window.h5 = {
             a1.style.cursor = 'pointer';
             a1.style.margin = 'auto';
             a1.innerHTML = 'NEXT';
-             a1.style.zIndex=1;
+            a1.style.zIndex = 1;
             document.getElementById('container').appendChild(a1);
 
         }
@@ -630,6 +630,36 @@ window.h5 = {
             force3D: true
         }, 0.1);
     },
+    renderWave: function(_text) {
+        var that = this;
+        document.getElementById('container').innerHTML = '';
+        var array = that.splitTextChars(_text);
+        for (var i = 0; i < array.length; i++) {
+            that.addDivChars(array[i]);
+        }
+        TweenMax.staggerFrom(document.getElementById('container').children, 1, { y: 100, rotation: 90, autoAlpha: 0, ease: Elastic.easeOut }, 0.03)
+    },
+    renderExplodeOut: function() {
+        var bezier_path = [{ x: 0, y: 0 }, { x: 0, y: 32 }, { x: 32, y: 32 }, { x: 32, y: 0 }, { x: 0, y: 0 }];
+        TweenMax.staggerTo(document.getElementById('container').children, 2.5, {
+            autoAlpha: 0,
+            rotation: function() {
+                return range(-2000, 2000);
+            },
+            bezier: {
+                type: 'thru',
+                values: bezier_path,
+                curviness: 1
+            },
+            onComplete: function() {
+                document.getElementById('container').innerHTML = '';
+            }
+        }, 0.015);
+
+        function range(min, max) {
+            return min + Math.random() * (max - min);
+        }
+    },
     renderWords1: function(_text) {
         var that = this;
         document.getElementById('container').innerHTML = '';
@@ -953,12 +983,10 @@ window.h5 = {
         });
         var words1 = document.getElementById('words1');
         words1.addEventListener('click', function() {
-            //分词器
             that.renderWords1('即使你没去过南极，你的生活仍然很精彩');
         });
         var words2 = document.getElementById('words2');
         words2.addEventListener('click', function() {
-            //分词器
             that.renderWords2('即使你没去过南极，你的生活仍然很精彩');
         });
 
@@ -975,6 +1003,15 @@ window.h5 = {
         var flod = document.getElementById('flod');
         flod.addEventListener('click', function() {
             that.renderFlod('即使你没去过南极，你的生活仍然很精彩');
+        });
+
+        var wave = document.getElementById('wave');
+        wave.addEventListener('click', function() {
+            that.renderWave('即使你没去过南极，你的生活仍然很精彩');
+        });
+        var explodeout = document.getElementById('explodeout');
+        explodeout.addEventListener('click', function() {
+            that.renderExplodeOut('即使你没去过南极，你的生活仍然很精彩');
         });
 
         return that;
