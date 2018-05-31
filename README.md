@@ -9,6 +9,7 @@
 - Shine效果利用`text-shadow` 阴影，发光效果。
 - 2D CANVAS效果利用`getImageData()` 像素数据，粒子效果。
 - Explore Out消失效果 利用[贝塞尔曲线](https://zh.wikipedia.org/wiki/%E8%B2%9D%E8%8C%B2%E6%9B%B2%E7%B7%9A) 模拟物理引擎运动（抛物线）
+  - 在线预览 [bezier-curve](http://myst729.github.io/bezier-curve/) 
 
 
 
