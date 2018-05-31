@@ -640,21 +640,28 @@ window.h5 = {
         TweenMax.staggerFrom(document.getElementById('container').children, 1, { y: 100, rotation: 90, autoAlpha: 0, ease: Elastic.easeOut }, 0.03)
     },
     renderExplodeOut: function() {
-        var bezier_path = [{ x: 0, y: 0 }, { x: 0, y: 32 }, { x: 32, y: 32 }, { x: 32, y: 0 }, { x: 0, y: 0 }];
-        TweenMax.staggerTo(document.getElementById('container').children, 2.5, {
-            autoAlpha: 0,
-            rotation: function() {
-                return range(-2000, 2000);
-            },
-            bezier: {
-                type: 'thru',
-                values: bezier_path,
-                curviness: 1
-            },
-            onComplete: function() {
-                document.getElementById('container').innerHTML = '';
-            }
-        }, 0.015);
+        var bezier_path = [{ x: 0, y: 0 }, { x: 100, y: -200 }, { x: 150, y: 500 }];
+        var ca=document.getElementById('container').children;
+        for (var j = 0; j < ca.length; j++) {
+            var b = ca[j];
+            TweenMax.to(b, 2.5, {
+                delay: 0.015 * j,
+                autoAlpha: 0,
+                rotation: function() {
+                    return range(-2000, 2000);
+                },
+                bezier: {
+                    type: 'quadratic',
+                    values: bezierPath(),
+                    curviness: 1
+                }
+            });
+            
+        }
+
+        function bezierPath() {
+            return [{ x: 0, y: 0 }, { x: range(-100, 100), y: range(-100, -500) }, { x: range(-200, 200), y: range(200, 800) }]
+        }
 
         function range(min, max) {
             return min + Math.random() * (max - min);
